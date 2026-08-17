@@ -1,74 +1,128 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { useState, useEffect } from 'react';
 
-function WidgetContent() {
-  const searchParams = useSearchParams();
-  const theme = searchParams.get('theme') || 'light';
-  const layout = searchParams.get('layout') || 'grid';
-  const showBranding = searchParams.get('branding') !== 'false';
-  
-  let reviews = [];
-  try {
-    const rawReviews = searchParams.get('data');
-    if (rawReviews) reviews = JSON.parse(decodeURIComponent(rawReviews));
-  } catch (e) {
-    reviews = [{ name: "Error", role: "System", text: "Failed to parse incoming payload data structure." }];
+function validateKey(email, keyToTest) {
+  if (!email || !keyToTest) return false;
+  const secret = "MY_PASSIVE_INCOME_SECRET_2026";
+  let hash = 0;
+  const combined = email.toLowerCase().trim() + secret;
+  for (let i = 0; i < combined.length; i++) {
+    hash = (hash << 5) - hash + combined.charCodeAt(i);
+    hash |= 0;
   }
-
-  const themeStyles = {
-    light: 'bg-white text-slate-900 border-slate-100',
-    dark: 'bg-slate-950 text-slate-100 border-slate-900',
-    cyber: 'bg-black text-lime-400 border-lime-500 font-mono'
-  };
-
-  const cardStyles = {
-    light: 'bg-slate-50/80 border border-slate-200/50 shadow-sm break-inside-avoid mb-4',
-    dark: 'bg-slate-900/60 border border-slate-800/80 shadow-md break-inside-avoid mb-4',
-    cyber: 'bg-zinc-900/80 border-2 border-dashed border-lime-500/30 break-inside-avoid mb-4'
-  };
-
-  const layoutWrapperClass = layout === 'masonry' 
-    ? 'columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4' 
-    : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
-
-  return (
-    <div className={`min-h-screen p-4 flex flex-col justify-between ${themeStyles[theme] || themeStyles.light}`}>
-      <div className={layoutWrapperClass}>
-        {reviews.map((rev, i) => (
-          <div key={i} className={`p-6 rounded-xl flex flex-col justify-between ${cardStyles[theme] || cardStyles.light}`}>
-            <p className="text-sm leading-relaxed opacity-90 mb-4">"{rev.text}"</p>
-            <div className="flex items-center gap-3 pt-3 border-t border-current/10">
-              {rev.avatar ? (
-                <img src={rev.avatar} alt={rev.name} className="w-9 h-9 rounded-full object-cover" />
-              ) : (
-                <div className="w-9 h-9 rounded-full bg-indigo-500/20 text-indigo-500 flex items-center justify-center font-bold text-xs uppercase">
-                  {rev.name ? rev.name.charAt(0) : 'C'}
-                </div>
-              )}
-              <div className="flex flex-col">
-                <span className="font-semibold text-xs tracking-tight">{rev.name}</span>
-                <span className="text-[10px] opacity-60 font-medium tracking-wide">{rev.role}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      {showBranding && (
-        <div className="mt-8 text-center border-t border-current/10 pt-4 pb-2">
-          <a href="https://your-domain.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold opacity-40 hover:opacity-100">
-            ⚡ Powered by <span className="underline decoration-indigo-500 decoration-2">TestimonialGrid</span>
-          </a>
-        </div>
-      )}
-    </div>
-  );
+  const expectedKey = `TG-${Math.abs(hash).toString(16).toUpperCase()}`;
+  return keyToTest.trim().toUpperCase() === expectedKey;
 }
 
-export default function EmbedWidget() {
+// FIXED: Capitalized name ensures Next.js correctly renders the dashboard interface shell
+export default function BuilderPage() {
+  const [theme, setTheme] = useState('light');
+  const [layout, setLayout] = useState('grid');
+  const [userEmail, setUserEmail] = useState('');
+  const [licenseKey, setLicenseKey] = useState('');
+  const [embedCode, setEmbedCode] = useState('');
+  const [reviews, setReviews] = useState([
+    { name: "Sarah Jenkins", role: "SaaS Founder", text: "This tool completely transformed our product launch velocity! Love the layout customizer options.", avatar: "" },
+    { name: "Alex Rivera", role: "Indie Creator", text: "Setting this up took me less than 2 minutes. Fits into my Framer site seamlessly with no adjustments needed.", avatar: "" }
+  ]);
+
+  useEffect(() => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const jsonStr = encodeURIComponent(JSON.stringify(reviews));
+    const isPremiumActive = validateKey(userEmail, licenseKey);
+    const embedUrl = `${baseUrl}/embed?theme=${theme}&layout=${layout}&branding=${!isPremiumActive}&data=${jsonStr}`;
+    setEmbedCode(`<iframe src="${embedUrl}" width="100%" height="600px" frameborder="0" style="border:none; border-radius:16px;"></iframe>`);
+  }, [theme, layout, reviews, userEmail, licenseKey]);
+
+  const updateReview = (index, field, value) => {
+    const updated = [...reviews];
+    updated[index] = { ...updated[index], [field]: value };
+    setReviews(updated);
+  };
+
+  const handleAvatarUpload = (index, file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        updateReview(index, 'avatar', reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading Widget...</div>}>
-      <WidgetContent />
-    </Suspense>
+    <div className="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-12 font-sans">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div className="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6 max-h-[85vh] overflow-y-auto">
+          <div>
+            <span className="text-[10px] font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 px-2.5 py-1 rounded-full">Secure Engine v2.0</span>
+            <h1 className="text-xl font-extrabold tracking-tight text-slate-900 mt-2">Testimonial Grid Builder</h1>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Theme Base</label>
+              <select value={theme} onChange={(e) => setTheme(e.target.value)} className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+                <option value="light">Light Theme</option>
+                <option value="dark">Dark Slate</option>
+                <option value="cyber">Cyberpunk Neon</option>
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Layout Structure</label>
+              <select value={layout} onChange={(e) => setLayout(e.target.value)} className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">
+                <option value="grid">Uniform Grid</option>
+                <option value="masonry">Dynamic Masonry</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Reviews Content</label>
+            {reviews.map((rev, index) => (
+              <div key={index} className="p-4 bg-slate-50/60 rounded-xl space-y-2 border border-slate-200/50">
+                <div className="flex gap-2 items-center">
+                  <label className="w-8 h-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center cursor-pointer overflow-hidden flex-shrink-0 relative">
+                    {rev.avatar ? <img src={rev.avatar} className="w-full h-full object-cover" alt="" /> : <span className="text-[10px] text-slate-500 font-bold">Img</span>}
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(index, e.target.files?.)} />
+                  </label>
+                  <input type="text" value={rev.name} onChange={(e) => updateReview(index, 'name', e.target.value)} className="p-1.5 text-xs bg-white border border-slate-200 rounded w-1/2" placeholder="Client Name" />
+                  <input type="text" value={rev.role} onChange={(e) => updateReview(index, 'role', e.target.value)} className="p-1.5 text-xs bg-white border border-slate-200 rounded w-1/2" placeholder="Role" />
+                </div>
+                <textarea value={rev.text} onChange={(e) => updateReview(index, 'text', e.target.value)} rows={2} className="w-full p-2 text-xs bg-white border border-slate-200 rounded resize-none" placeholder="Feedback text..." />
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-2 border-t border-slate-100 space-y-3">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Premium Verification</label>
+            <div className="grid grid-cols-1 gap-2">
+              <input type="email" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="Your Purchase Email Address" />
+              <input type="password" value={licenseKey} onChange={(e) => setLicenseKey(e.target.value)} className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono" placeholder="Paste Secure License Key (TG-...)" />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">HTML Code Snippet</label>
+            <div className="relative">
+              <textarea readOnly value={embedCode} rows={3} className="w-full p-3 font-mono text-[11px] bg-slate-900 text-slate-300 rounded-xl resize-none" />
+              <button onClick={() => navigator.clipboard.writeText(embedCode)} className="absolute bottom-3 right-3 bg-white/10 hover:bg-white/20 text-white font-medium text-[10px] px-2.5 py-1.5 rounded">
+                Copy Code
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-7 flex flex-col space-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Live Preview Canvas</span>
+          <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm h-[80vh]">
+            <iframe src={`/embed?theme=${theme}&layout=${layout}&branding=${!validateKey(userEmail, licenseKey)}&data=${encodeURIComponent(JSON.stringify(reviews))}`} width="100%" height="100%" className="border-none" />
+          </div>
+        </div>
+
+      </div>
+    </div>
   );
 }
