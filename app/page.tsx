@@ -1,19 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 
-interface Testimonial {
-  name: string;
-  role: string;
-  text: string;
-  avatar?: string;
-}
-
 // A simple mathematical function to validate a key without a database
 function validateKey(email: string, keyToTest: string): boolean {
   if (!email || !keyToTest) return false;
-  const secret = "MY_PASSIVE_INCOME_SECRET_2026"; // Change this to any secret word you want!
+  const secret = "MY_PASSIVE_INCOME_SECRET_2026";
   
-  // Combine email and secret to create a simple hash score
   let hash = 0;
   const combined = email.toLowerCase().trim() + secret;
   for (let i = 0; i < combined.length; i++) {
@@ -31,8 +23,7 @@ export default function BuilderPage() {
   const [userEmail, setUserEmail] = useState('');
   const [licenseKey, setLicenseKey] = useState('');
   const [embedCode, setEmbedCode] = useState('');
-  
-  const [reviews, setReviews] = useState<Testimonial[]>([
+  const [reviews, setReviews] = useState([
     { name: "Sarah Jenkins", role: "SaaS Founder", text: "This tool completely transformed our product launch velocity! Love the layout customizer options.", avatar: "" },
     { name: "Alex Rivera", role: "Indie Creator", text: "Setting this up took me less than 2 minutes. Fits into my Framer site seamlessly with no adjustments needed.", avatar: "" }
   ]);
@@ -40,15 +31,12 @@ export default function BuilderPage() {
   useEffect(() => {
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com';
     const jsonStr = encodeURIComponent(JSON.stringify(reviews));
-    
-    // SECURITY CHECK: Watermark is only removed if the key matches their email perfectly!
     const isPremiumActive = validateKey(userEmail, licenseKey);
-    
     const embedUrl = `${baseUrl}/embed?theme=${theme}&layout=${layout}&branding=${!isPremiumActive}&data=${jsonStr}`;
     setEmbedCode(`<iframe src="${embedUrl}" width="100%" height="600px" frameborder="0" style="border:none; border-radius:16px;"></iframe>`);
   }, [theme, layout, reviews, userEmail, licenseKey]);
 
-  const updateReview = (index: number, field: keyof Testimonial, value: string) => {
+  const updateReview = (index: number, field: string, value: string) => {
     const updated = [...reviews];
     updated[index] = { ...updated[index], [field]: value };
     setReviews(updated);
@@ -57,13 +45,18 @@ export default function BuilderPage() {
   const handleAvatarUpload = (index: number, file: File | undefined) => {
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => updateReview(index, 'avatar', reader.result as string);
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        updateReview(index, 'avatar', reader.result);
+      }
+    };
     reader.readAsDataURL(file);
   };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-4 md:p-12 font-sans">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
         <div className="lg:col-span-5 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6 max-h-[85vh] overflow-y-auto">
           <div>
             <span className="text-[10px] font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 px-2.5 py-1 rounded-full">Secure Engine v2.0</span>
@@ -95,7 +88,7 @@ export default function BuilderPage() {
                 <div className="flex gap-2 items-center">
                   <label className="w-8 h-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center cursor-pointer overflow-hidden flex-shrink-0 relative">
                     {rev.avatar ? <img src={rev.avatar} className="w-full h-full object-cover" alt="" /> : <span className="text-[10px] text-slate-500 font-bold">Img</span>}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(index, e.target.files?.)} />
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(index, e.target.files?.[0])} />
                   </label>
                   <input type="text" value={rev.name} onChange={(e) => updateReview(index, 'name', e.target.value)} className="p-1.5 text-xs bg-white border border-slate-200 rounded w-1/2" placeholder="Client Name" />
                   <input type="text" value={rev.role} onChange={(e) => updateReview(index, 'role', e.target.value)} className="p-1.5 text-xs bg-white border border-slate-200 rounded w-1/2" placeholder="Role" />
@@ -130,6 +123,7 @@ export default function BuilderPage() {
             <iframe src={`/embed?theme=${theme}&layout=${layout}&branding=${!validateKey(userEmail, licenseKey)}&data=${encodeURIComponent(JSON.stringify(reviews))}`} width="100%" height="100%" className="border-none" />
           </div>
         </div>
+
       </div>
     </div>
   );
