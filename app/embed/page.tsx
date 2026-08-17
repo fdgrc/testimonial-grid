@@ -1,5 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 interface Testimonial {
   name: string;
@@ -8,7 +9,8 @@ interface Testimonial {
   avatar?: string;
 }
 
-export default function EmbedWidget() {
+// 1. This component safely reads the URL link parameters
+function WidgetContent() {
   const searchParams = useSearchParams();
   const theme = searchParams.get('theme') || 'light';
   const layout = searchParams.get('layout') || 'grid';
@@ -68,5 +70,14 @@ export default function EmbedWidget() {
         </div>
       )}
     </div>
+  );
+}
+
+// 2. The main target page wraps our component in a Suspense loader block to make Next.js happy
+export default function EmbedWidget() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading Widget...</div>}>
+      <WidgetContent />
+    </Suspense>
   );
 }
