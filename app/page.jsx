@@ -26,8 +26,11 @@ export default function BuilderPage() {
   ]);
 
   useEffect(() => {
-    // Replace 'your-clean-project-name.vercel.app' with your actual short production URL from Vercel!
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://your-clean-project-name.vercel.app';
+    // FIXED CLEAN LINK: Dynamically verifies environment setup and defaults to clean short code mapping profiles
+    let baseUrl = 'https://testimonial-grid-five.vercel.app';
+    if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('projects.vercel.app')) {
+      baseUrl = window.location.origin;
+    }
     const jsonStr = encodeURIComponent(JSON.stringify(reviews));
     const isPremiumActive = validateKey(userEmail, licenseKey);
     const embedUrl = `${baseUrl}/embed?theme=${theme}&layout=${layout}&branding=${!isPremiumActive}&data=${jsonStr}`;
