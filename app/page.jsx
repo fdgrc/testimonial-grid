@@ -27,7 +27,7 @@ export default function BuilderPage() {
 
   useEffect(() => {
     // FIXED CLEAN LINK: Dynamically verifies environment setup and defaults to clean short code mapping profiles
-    let baseUrl = 'https://testimonial-grid-five.vercel.app';
+    let baseUrl = 'https://tgrid.vercel.app/';
     if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('projects.vercel.app')) {
       baseUrl = window.location.origin;
     }
