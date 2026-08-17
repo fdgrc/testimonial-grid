@@ -14,7 +14,6 @@ function validateKey(email, keyToTest) {
   return keyToTest.trim().toUpperCase() === expectedKey;
 }
 
-// FIXED: Capitalized name ensures Next.js correctly renders the dashboard interface shell
 export default function BuilderPage() {
   const [theme, setTheme] = useState('light');
   const [layout, setLayout] = useState('grid');
@@ -86,7 +85,7 @@ export default function BuilderPage() {
                 <div className="flex gap-2 items-center">
                   <label className="w-8 h-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center cursor-pointer overflow-hidden flex-shrink-0 relative">
                     {rev.avatar ? <img src={rev.avatar} className="w-full h-full object-cover" alt="" /> : <span className="text-[10px] text-slate-500 font-bold">Img</span>}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(index, e.target.files?.)} />
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(index, e.target.files[0])} />
                   </label>
                   <input type="text" value={rev.name} onChange={(e) => updateReview(index, 'name', e.target.value)} className="p-1.5 text-xs bg-white border border-slate-200 rounded w-1/2" placeholder="Client Name" />
                   <input type="text" value={rev.role} onChange={(e) => updateReview(index, 'role', e.target.value)} className="p-1.5 text-xs bg-white border border-slate-200 rounded w-1/2" placeholder="Role" />
