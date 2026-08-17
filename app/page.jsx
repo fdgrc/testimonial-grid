@@ -26,8 +26,8 @@ export default function BuilderPage() {
   ]);
 
   useEffect(() => {
-    // FIXED: This automatically grabs YOUR real, unique live website domain string instead of a placeholder text
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    // Replace 'your-clean-project-name.vercel.app' with your actual short production URL from Vercel!
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://your-clean-project-name.vercel.app';
     const jsonStr = encodeURIComponent(JSON.stringify(reviews));
     const isPremiumActive = validateKey(userEmail, licenseKey);
     const embedUrl = `${baseUrl}/embed?theme=${theme}&layout=${layout}&branding=${!isPremiumActive}&data=${jsonStr}`;
