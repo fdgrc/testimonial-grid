@@ -105,7 +105,6 @@ export default function BuilderPage() {
             ))}
           </div>
 
-          {/* NEW SECURE LICENSE INPUTS */}
           <div className="pt-2 border-t border-slate-100 space-y-3">
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Premium Verification</label>
             <div className="grid grid-cols-1 gap-2">
