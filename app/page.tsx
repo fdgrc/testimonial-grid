@@ -29,7 +29,8 @@ export default function BuilderPage() {
   ]);
 
   useEffect(() => {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com';
+    // FIXED: This line automatically reads your exact Vercel address layout instead of using a placeholder string
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
     const jsonStr = encodeURIComponent(JSON.stringify(reviews));
     const isPremiumActive = validateKey(userEmail, licenseKey);
     const embedUrl = `${baseUrl}/embed?theme=${theme}&layout=${layout}&branding=${!isPremiumActive}&data=${jsonStr}`;
@@ -88,7 +89,7 @@ export default function BuilderPage() {
                 <div className="flex gap-2 items-center">
                   <label className="w-8 h-8 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center cursor-pointer overflow-hidden flex-shrink-0 relative">
                     {rev.avatar ? <img src={rev.avatar} className="w-full h-full object-cover" alt="" /> : <span className="text-[10px] text-slate-500 font-bold">Img</span>}
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(index, e.target.files?.[0])} />
+                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleAvatarUpload(index, e.target.files?.)} />
                   </label>
                   <input type="text" value={rev.name} onChange={(e) => updateReview(index, 'name', e.target.value)} className="p-1.5 text-xs bg-white border border-slate-200 rounded w-1/2" placeholder="Client Name" />
                   <input type="text" value={rev.role} onChange={(e) => updateReview(index, 'role', e.target.value)} className="p-1.5 text-xs bg-white border border-slate-200 rounded w-1/2" placeholder="Role" />
