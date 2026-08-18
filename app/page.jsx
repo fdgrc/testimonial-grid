@@ -26,11 +26,8 @@ export default function BuilderPage() {
   ]);
 
   useEffect(() => {
-    // FIXED CLEAN LINK: Dynamically verifies environment setup and defaults to clean short code mapping profiles
-    let baseUrl = 'https://tgrid.vercel.app/';
-    if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('projects.vercel.app')) {
-      baseUrl = window.location.origin;
-    }
+    // ⚠️ HARDCODED FIX: This forces the text box to use your exact live layout link automatically!
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
     const jsonStr = encodeURIComponent(JSON.stringify(reviews));
     const isPremiumActive = validateKey(userEmail, licenseKey);
     const embedUrl = `${baseUrl}/embed?theme=${theme}&layout=${layout}&branding=${!isPremiumActive}&data=${jsonStr}`;
